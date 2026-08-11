@@ -2,6 +2,8 @@
 
 Repository thực hành môn Kiến trúc Microservices.
 
+---
+
 ## Lab 01 - Course Service Skeleton
 
 ### Nội dung
@@ -16,8 +18,8 @@ Repository thực hành môn Kiến trúc Microservices.
 
 ### Service
 
-| Service | Port | Database |
-|---------|------|----------|
+| Service        | Port | Database |
+|----------------|------|----------|
 | course-service | 8082 | course_db |
 
 ---
@@ -41,7 +43,7 @@ Hoàn thiện chức năng CRUD cho `course-service` theo mô hình 3 lớp.
 ### API
 
 | Method | Endpoint | Mô tả |
-|--------|----------|-------|
+|--------|----------|------|
 | GET | `/courses` | Lấy danh sách môn học |
 | GET | `/courses/{id}` | Lấy môn học theo ID |
 | POST | `/courses` | Thêm môn học |
@@ -50,104 +52,57 @@ Hoàn thiện chức năng CRUD cho `course-service` theo mô hình 3 lớp.
 
 ---
 
-## Tech Stack
+## Lab 03 - Registration Service & Communication Between Services
 
-- Java 17
-- Spring Boot
-- Spring Data JPA
-- Maven
-- MySQL
-- Lombok
-- Hibernate
-- Postman
-- Git & GitHub
+### Nội dung
 
----
+Phát triển `registration-service` và thực hiện giao tiếp giữa các microservice.
 
-## Database
+### Chức năng
 
-```
-course_db
-```
+#### Course Service
 
-Bảng chính
+- Tìm kiếm môn học.
+- Phân trang danh sách môn học.
+- API nội bộ giữ chỗ.
+- API nội bộ trả lại chỗ.
+- Quản lý số chỗ còn lại của môn học.
 
-```
-course
-```
+#### Registration Service
 
-Các trường
+- Tạo đăng ký môn học.
+- Lấy danh sách đăng ký.
+- Hủy đăng ký.
+- Kiểm tra sinh viên đã đăng ký môn học hay chưa.
+- Kiểm tra môn học có tồn tại hay không.
+- Kiểm tra môn học còn chỗ hay không.
+- Gọi `course-service` thông qua REST API.
+- Xử lý lỗi khi `course-service` không khả dụng.
+- Global Exception Handler trả về JSON lỗi.
 
-- id
-- ten_mon_hoc
-- so_tin_chi
-- so_cho_toi_da
-- so_cho_con_lai
+### Kiến trúc
 
----
-
-## Project Structure
-
-```
-course-service
-├── controller
-├── dto
-├── entity
-├── exception
-├── repository
-├── service
-└── resources
-```
-
----
-
-## Cách chạy
-
-```bash
-git clone https://github.com/Vanloi18/crs-microservices.git
-```
-
-```bash
-cd crs-microservices/course-service
-```
-
-Cấu hình MySQL trong `application.properties`
-
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/course_db
-spring.datasource.username=root
-spring.datasource.password=123456
-```
-
-Chạy project
-
-```bash
-mvn spring-boot:run
-```
-
-Hoặc chạy trực tiếp lớp
-
-```
-CourseServiceApplication
-```
-
----
-
-## Kiểm thử API
-
-Sử dụng Postman.
-
-Ví dụ lấy danh sách môn học
-
-```
-GET http://localhost:8082/courses
-```
-
----
-
-## Author
-
-**Lê Văn Lợi**
-
-- HUNRE
-- DH13C6
+```text
+                         ┌─────────────────────┐
+                         │       Postman       │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │ registration-service│
+                         │       :8083         │
+                         └──────────┬──────────┘
+                                    │
+                              REST API Call
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │    course-service   │
+                         │       :8082         │
+                         └──────────┬──────────┘
+                                    │
+                 ┌──────────────────┴──────────────────┐
+                 ▼                                     ▼
+        ┌─────────────────┐                   ┌─────────────────┐
+        │ registration_db │                   │    course_db    │
+        └─────────────────┘                   └─────────────────┘
