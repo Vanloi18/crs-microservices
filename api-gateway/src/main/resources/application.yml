@@ -1,0 +1,98 @@
+  spring:
+    cloud:
+      gateway:
+        server:
+          webflux:
+            routes:
+
+              # =========================
+              # AUTH SERVICE
+              # =========================
+              - id: auth-service
+                uri: http://localhost:8081
+                predicates:
+                  - Path=/api/auth/**
+                filters:
+                  - RewritePath=/api/auth/(?<segment>.*), /auth/${segment}
+
+              # =========================
+              # COURSE SERVICE - LIST
+              # =========================
+              - id: course-service-list
+                uri: http://localhost:8082
+                predicates:
+                  - Path=/api/courses
+                filters:
+                  - RewritePath=/api/courses, /courses
+
+              # =========================
+              # COURSE SERVICE - DETAIL
+              # =========================
+              - id: course-service-detail
+                uri: http://localhost:8082
+                predicates:
+                  - Path=/api/courses/**
+                filters:
+                  - RewritePath=/api/courses/(?<segment>.*), /courses/${segment}
+
+              # =========================
+              # REGISTRATION SERVICE - LIST
+              # =========================
+              - id: registration-service-list
+                uri: http://localhost:8083
+                predicates:
+                  - Path=/api/registrations
+                filters:
+                  - RewritePath=/api/registrations, /registrations
+
+              # =========================
+              # REGISTRATION SERVICE - DETAIL
+              # =========================
+              - id: registration-service-detail
+                uri: http://localhost:8083
+                predicates:
+                  - Path=/api/registrations/**
+                filters:
+                  - RewritePath=/api/registrations/(?<segment>.*), /registrations/${segment}
+
+              # =========================
+              # PARTNER PUBLIC COURSE API
+              # =========================
+              - id: course-service-partner
+                uri: http://localhost:8082
+                predicates:
+                  - Path=/api/public/courses
+                filters:
+                  - RewritePath=/api/public/courses, /courses
+
+    # =========================
+    # CORS
+    # =========================
+    globalcors:
+      cors-configurations:
+        '[/**]':
+          allowedOrigins: "http://localhost:5173"
+          allowedMethods: "*"
+          allowedHeaders: "*"
+
+  # =========================
+  # JWT
+  # =========================
+  jwt:
+    secret: CRS-Microservices-Secret-Key-Nam-3-Hoc-Ky-2026-Doi-Trong-Thuc-Te
+
+  # =========================
+  # PARTNER API KEY
+  # =========================
+  partner:
+    api-key: crs-partner-key-2026
+
+  # =========================
+  # ACTUATOR / GATEWAY
+  # =========================
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: gateway
+
