@@ -14,7 +14,6 @@ import java.util.List;
 @Component
 public class AuthHeaderFilter implements GlobalFilter, Ordered {
 
-    // Các đường dẫn không cần Header Authorization
     private static final List<String> OPEN_PATHS = List.of(
             "/api/auth/login",
             "/api/public/courses"
@@ -33,19 +32,21 @@ public class AuthHeaderFilter implements GlobalFilter, Ordered {
                 .anyMatch(path::startsWith);
 
         // GET /api/courses/** là public
-        // Chỉ POST/PUT/DELETE mới cần token
         boolean isPublicCourseRead =
                 path.startsWith("/api/courses")
+                        && request.getMethod() != null
                         && request.getMethod().name().equals("GET");
 
         if (isOpen || isPublicCourseRead) {
             return chain.filter(exchange);
         }
 
-        if (!request.getHeaders().containsKey("Authorization")) {
-            exchange.getResponse()
-                    .setStatusCode(HttpStatus.UNAUTHORIZED);
+        // Kiểm tra Authorization header
+        String authorization =
+                request.getHeaders().getFirst("Authorization");
 
+        if (authorization == null || authorization.isBlank()) {
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
 
